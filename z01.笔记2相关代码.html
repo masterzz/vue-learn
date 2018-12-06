@@ -128,7 +128,8 @@
           { id: 1, name: '奔驰', ctime: new Date() },
           { id: 2, name: '宝马', ctime: new Date() }
         ],
-        msg:'曾经我也是一个单纯的男人，傻傻地问，谁是世界上最单纯的男人'
+        msg:'曾经我也是一个单纯的男人，傻傻地问，谁是世界上最单纯的男人',
+        message:'ok'
       },
       methods:{
         add() {
@@ -140,7 +141,7 @@
           var car = {id:this.id, name:this.name,ctime:new Date()};
           this.list.push(car);
           this.id = this.name = '';
-          console.log('add');
+          // console.log('add');
         },
         del(id) {
           //根据id删除数据
@@ -179,7 +180,37 @@
             }
           })
           return newList;
+        },
+        show() {
+          console.log(this.message);
         }
+      },
+      beforeCreate() {
+        // 这是我们遇到的第一个生命周期函数，表示实例被完全创建出来之前，会执行它
+        // console.log(this.message);
+        // this.show();
+        // 注意在beforeCreate生命周期函数执行的时候，data和methods中的数据都没有初始化
+      },
+      created() {
+
+      },
+      beforeMount() {
+        // 表示模板已经在内存中编辑完成了，但是尚未渲染到页面中
+        // console.log(document.getElementById('app'));
+        // 在beforeMount 执行的时候，页面中的元素，还没有被真正替换过来，只是之前写的一些模板字符串
+      },
+      mounted() {
+        // 这个函数表示内存中的模板，真实地挂载到了页面中，用户已经可以看到渲染好的页面了
+        // console.log(document.getElementById('app'));
+        // 注意，mounted 是实例创建期间的最后一个生命周期函数，mounted执行完就表示实例正式地全部创建好了，如果不做修改它就静静地躺在内存里
+      },
+      beforeUpdate() {
+        // 数据被更新后就会触发这个事件
+        console.log('数据更新:' );
+        // 但是页面中的数据还是旧的,此时，data中的数据是最新的，页面尚未和最新数据保持一致
+      },
+      updated() {
+        // 这个事件执行的时候，页面和data数据已经同步了，都是最新的
       },
       filters:{
         // 定义私有过滤器，过滤器有两个条件， 【过滤器名称 和 处理函数】
@@ -202,10 +233,10 @@
         // 自定义私有指令
         'fontweight': {
           bind: function(el,binding) {
-            console.log(binding.value);
+            // console.log(binding.value);
             el.style.fontWeight = binding.value;
           }
-        }
+        },
         'fontsize': function(el,binding) {
           
         }
