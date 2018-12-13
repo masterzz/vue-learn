@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="./lib/vue-2.4.0.js"></script>
+  <link rel="stylesheet" href="./lib/animate.css">
+  <!-- 自定义两组样式 -->
+  <style>
+  /* v-enter 【这是一个时间点】 是进入之前，元素的起始状态，此时还没有开始进入 */
+    /* v-leave-to 【这是一个时间点】 是动画离开之后，离开的终止状态，此时，元素 动画已经结束了 */
+    .v-enter,
+    .v-leave-to {
+      opacity: 0;
+      transform: translateX(150px);
+    }
+
+    .v-enter-active,
+    .v-leave-active {
+      transition:all 0.4s ease;
+    }
+
+    .my-enter,
+    .my-leave-to {
+      opacity: 0;
+      transform: translateY(150px);
+    }
+
+    .my-enter-active,
+    .my-leave-active {
+      transition:all 0.4s ease;
+    }
+
+    .ball {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background-color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <input type="button" value="toggle" @click="flag=!flag">
+    <!-- 需求： 点击按钮，让 h3 显示，再点击，让 h3 隐藏 -->
+    <!-- 1. 使用 transition 元素，把 需要被动画控制的元素，包裹起来 -->
+    <!-- transition 元素，是 Vue 官方提供的 -->
+    <transition>
+      <h3 v-if="flag">这是一个H3</h3>
+    </transition>
+
+    <hr>
+
+    <input type="button" value="toggle2" @click="flag2=!flag2">
+    <transition name="my">
+      <h6 v-if="flag2">这是一个H6</h6>
+    </transition>
+    <hr>
+
+    <input type="button" value="toggle" @click="flag3=!flag3">
+    <!-- 需求： 点击按钮，让 h3 显示，再点击，让 h3 隐藏 -->
+    <!-- <transition enter-active-class="animated bounceIn" leave-active-class="animated bounceOut">
+      <h3 v-if="flag">这是一个H3</h3>
+    </transition> -->
+
+    <!-- 使用 :duration="毫秒值" 来统一设置 入场 和 离场 时候的动画时长 -->
+    <!-- <transition enter-active-class="bounceIn" leave-active-class="bounceOut" :duration="200">
+      <h3 v-if="flag" class="animated">这是一个H3</h3>
+    </transition> -->
+
+    <!-- 使用  :duration="{ enter: 200, leave: 400 }"  来分别设置 入场的时长 和 离场的时长  -->
+    <transition 
+    enter-active-class="bounceIn" 
+    leave-active-class="bounceOut" 
+    :duration="{ enter: 200, leave: 400 }">
+      <h3 v-if="flag3" class="animated">这是一个H3</h3>
+    </transition> 
+
+    <hr>
+    <input type="button" value="快到碗里来" @click="flag4=!flag4">
+    <!-- 1. 使用 transition 元素把 小球包裹起来 -->
+    <!-- 测试这一部分的时候把其他style给注释掉 -->
+    <transition
+      @before-enter="beforeEnter"
+      @enter="enter"
+      @after-enter="afterEnter">
+      <div class="ball" v-show="flag4"></div>
+    </transition>
+    <hr>
+    <my-com1></my-com1>
+    <mycom2 v-if="flag5"></mycom2>
+    <mycom3 v-else="flag5"></mycom3>
+    <login></login>
+    <hr>
+    <a href="" @click.prevent="comp='login'">注册</a>
+    <transition mode="out-in">
+      <compoment :is="comp"></compoment>
+    </transition>
+  </div>
+
+  <template id="tmpl">
+    <div>
+      <h1>这是通过 template 元素,在外部定义的组件结构,这个方式,有代码的只能提示和高亮</h1>
+      <h4>好用,不错!</h4>
+    </div>
+  </template>
+
+  <template id="tmpl2">
+    <h1>这是私有的 login 组件</h1>
+  </template>
+
+  <script>
+    var com1 = Vue.extend({
+      template:'<h3>h3第一种组件标签测试</h3>'
+    });
+
+    Vue.component('myCom1', com1)
+    // Vue.component('myCom1', Vue.extend())同理
+
+    Vue.component('mycom2', {
+      template:'<h3>h3第二种组件标签测试</h3>'
+    });
+
+    Vue.component('mycom3', {
+      template: '#tmpl'
+    })
+
+    var vm = new Vue({
+      el:"#app",
+      data: {
+        flag:false,
+        flag2: false,
+        flag3:false,
+        flag4: false,
+        flag5:true,
+        comp:'mycom2',
+      },
+      methods: {
+        // 注意： 动画钩子函数的第一个参数：el，表示 要执行动画的那个DOM元素，是个原生的 JS DOM对象
+        // 大家可以认为 ， el 是通过 document.getElementById('') 方式获取到的原生JS DOM对象
+        beforeEnter(el){
+          // beforeEnter 表示动画入场之前，此时，动画尚未开始，可以 在 beforeEnter 中，设置元素开始动画之前的起始样式
+          // 设置小球开始动画之前的，起始位置
+          el.style.transform = "translate(0, 0)"
+        },
+        enter(el,done){
+          // 这句话，没有实际的作用，但是，如果不写，出不来动画效果；
+          // 可以认为 el.offsetWidth 会强制动画刷新
+          el.offsetWidth
+          // enter 表示动画 开始之后的样式，这里，可以设置小球完成动画之后的，结束状态
+          el.style.transform = "translate(150px, 450px)"
+          el.style.transition = 'all 1s ease'
+
+          // 这里的 done， 起始就是 afterEnter 这个函数，也就是说：done 是 afterEnter 函数的引用
+          done()
+        },
+        afterEnter(el){
+          // 动画完成之后，会调用 afterEnter
+          // console.log('ok')
+          this.flag4 = !this.flag4
+        }
+      },
+      components: { // 定义实例内部私有组件的
+        login: {
+          template: '#tmpl2'
+        }
+      },
+    });
+
+  </script>
+</body>
+  
+</html>
